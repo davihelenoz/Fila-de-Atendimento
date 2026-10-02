@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fila de Atendimento</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Fila de Atendimento</h1>
+
+
+        <!-- CADASTRO -->
+
+        <section class="card">
+
+            <h2>Cadastrar cliente</h2>
+
+            <form action="/cadastrar" method="POST">
+
+                <input
+                    type="text"
+                    name="nome"
+                    placeholder="Nome do cliente"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="servico"
+                    placeholder="Serviço"
+                    required
+                >
+
+                <button type="submit">
+                    Entrar na fila
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- CHAMAR PRÓXIMO -->
+
+        <section class="card">
+
+            <h2>Atendimento</h2>
+
+            <form action="/chamar" method="POST">
+
+                <button type="submit">
+                    Chamar próximo cliente
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- FILA -->
+
+        <section class="card">
+
+            <h2>Fila</h2>
+
+            {% if clientes %}
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Senha</th>
+                            <th>Nome</th>
+                            <th>Serviço</th>
+                            <th>Horário</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for cliente in clientes %}
+
+                            <tr>
+
+                                <td>
+                                    {{ cliente["id"] }}
+                                </td>
+
+                                <td>
+                                    {{ cliente["nome"] }}
+                                </td>
+
+                                <td>
+                                    {{ cliente["servico"] }}
+                                </td>
+
+                                <td>
+                                    {{ cliente["horario"] }}
+                                </td>
+
+                                <td>
+
+                                    <span class="status {{ cliente['status'] }}">
+                                        {{ cliente["status"] }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    {% if cliente["status"] == "aguardando" %}
+
+                                        <form
+                                            action="/status/{{ cliente['id'] }}"
+                                            method="POST"
+                                        >
+
+                                            <input
+                                                type="hidden"
+                                                name="status"
+                                                value="atendimento"
+                                            >
+
+                                            <button type="submit">
+                                                Atender
+                                            </button>
+
+                                        </form>
+
+                                    {% endif %}
+
+
+                                    {% if cliente["status"] == "atendimento" %}
+
+                                        <form
+                                            action="/status/{{ cliente['id'] }}"
+                                            method="POST"
+                                        >
+
+                                            <input
+                                                type="hidden"
+                                                name="status"
+                                                value="concluido"
+                                            >
+
+                                            <button type="submit">
+                                                Concluir
+                                            </button>
+
+                                        </form>
+
+                                    {% endif %}
+
+
+                                    {% if cliente["status"] != "concluido"
+                                    and cliente["status"] != "cancelado" %}
+
+                                        <form
+                                            action="/cancelar/{{ cliente['id'] }}"
+                                            method="POST"
+                                        >
+
+                                            <button
+                                                type="submit"
+                                                class="cancelar"
+                                            >
+                                                Cancelar
+                                            </button>
+
+                                        </form>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <p>A fila está vazia.</p>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</body>
+
+</html>
